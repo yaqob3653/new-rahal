@@ -139,19 +139,34 @@ def login_page():
             <div style="margin-top: 60px;"></div>
         """, unsafe_allow_html=True)
         
-        lottie_html = """
-            <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script> 
-            <dotlottie-player 
-                src="https://lottie.host/3de805f3-9654-44bb-8255-d99bd5cde31c/aYjjLtCtfW.lottie" 
-                background="transparent" 
-                speed="1" 
-                style="width: 100%; height: 280px;" 
-                loop 
-                autoplay>
-            </dotlottie-player>
-        """
-        
-        components.html(lottie_html, height=300)
+        # --- Login Animation Video ---
+        import base64
+        try:
+            with open("src/app/assets/logo.mp4", "rb") as f:
+                login_video_b64 = base64.b64encode(f.read()).decode()
+            
+            video_html = f"""
+                <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin-bottom: 15px;">
+                    <video width="85%" height="250px" autoplay loop muted playsinline style="border-radius: 15px; border: 3px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); object-fit: cover;">
+                        <source src="data:video/mp4;base64,{login_video_b64}" type="video/mp4">
+                    </video>
+                </div>
+            """
+            st.markdown(video_html, unsafe_allow_html=True)
+        except Exception as e:
+            # Fallback to Lottie if video fails
+            lottie_html = """
+                <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script> 
+                <dotlottie-player 
+                    src="https://lottie.host/3de805f3-9654-44bb-8255-d99bd5cde31c/aYjjLtCtfW.lottie" 
+                    background="transparent" 
+                    speed="1" 
+                    style="width: 100%; height: 280px;" 
+                    loop 
+                    autoplay>
+                </dotlottie-player>
+            """
+            components.html(lottie_html, height=300)
         
         st.markdown("""
             <h1 style="font-size: 3.5rem; font-weight: 900; margin: 10px 0; text-align: center; text-shadow: 0 2px 10px rgba(0,0,0,0.2); color: white;">Rahhal</h1>

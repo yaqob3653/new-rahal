@@ -19,76 +19,45 @@ def show_dashboard():
     """, unsafe_allow_html=True)
     
     
-    # --- Professional Logo Implementation (CSS Injection) ---
-    # This method injects the logo BEFORE the navigation menu using CSS
+    # --- Animated Video Logo ---
     import base64
-    
-    def get_base64_of_bin_file(bin_file):
-        with open(bin_file, 'rb') as f:
-            data = f.read()
-        return base64.b64encode(data).decode()
-
+    logo_html = ""
     try:
-        logo_base64 = get_base64_of_bin_file("src/app/assets/logo.png")
-        logo_html = f"url('data:image/png;base64,{logo_base64}')"
-    except:
-        # Fallback to URL if local file fails
-        logo_html = "url('https://i.ibb.co/YBxJxqK/logo.png')"
-
-    st.markdown(f"""
-    <style>
-        /* Hide default Streamlit Logo if present */
-        [data-testid="stLogo"] {{
-            display: none !important;
-        }}
-
-        /* Inject Logo above Sidebar Navigation */
-        [data-testid="stSidebarNav"]::before {{
-            content: "";
-            display: block;
-            margin: -40px auto 30px -20px;
-            width: 320px;
-            height: 150px;
-            background-image: {logo_html};
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-            transition: transform 0.3s ease;
-        }}
-        
-        /* Hover Effect */
-        [data-testid="stSidebarNav"]::before:hover {{
-            transform: scale(1.05);
-            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2));
-        }}
-        
-        /* Add a decorative container look */
-        [data-testid="stSidebarNav"] {{
-            background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, transparent 100%);
-            padding-top: 20px !important;
-        }}
-    </style>
-    """, unsafe_allow_html=True)
+        with open("src/app/assets/logo.mp4", "rb") as f:
+            video_base64 = base64.b64encode(f.read()).decode()
+        logo_html = f"""
+            <div style="display: flex; justify-content: center; margin-bottom: 20px; margin-top: -20px;">
+                <video width="100%" autoplay loop muted playsinline style="border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <source src="data:video/mp4;base64,{video_base64}" type="video/mp4">
+                </video>
+            </div>
+        """
+    except Exception as e:
+        # Fallback or silent error
+        pass
 
     # Sidebar Styling & Content
     with st.sidebar:
+        if logo_html:
+            st.markdown(logo_html, unsafe_allow_html=True)
         # Custom CSS for Sidebar
         st.markdown("""
         <style>
             [data-testid="stSidebar"] {
-                background-color: #0f172a;
-                border-right: 1px solid #1e293b;
+                background-color: #faf9f5 !important;
+                border-right: 1px solid #e2e8f0 !important;
             }
             [data-testid="stSidebar"] * {
-                color: #e2e8f0;
+                color: #142C63 !important;
+                font-weight: 600 !important;
             }
             .profile-card {
-                background-color: #1e293b;
+                background-color: #ffffff;
                 padding: 15px;
                 border-radius: 12px;
-                border: 1px solid #334155;
+                border: 1px solid #e2e8f0;
                 margin-bottom: 20px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             }
             .profile-role {
                 color: #3b82f6 !important;
