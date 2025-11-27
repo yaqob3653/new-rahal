@@ -18,8 +18,58 @@ def show_dashboard():
     </style>
     """, unsafe_allow_html=True)
     
-    # Use st.logo for the sidebar top placement
-    st.logo("https://ideogram.ai/assets/image/lossless/response/2N9JG3TjTGWI9PV2FmBThg", icon_image="https://ideogram.ai/assets/image/lossless/response/SIaHZQRVTVu5xEbSAO3jRA")
+    
+    # --- Professional Logo Implementation (CSS Injection) ---
+    # This method injects the logo BEFORE the navigation menu using CSS
+    import base64
+    
+    def get_base64_of_bin_file(bin_file):
+        with open(bin_file, 'rb') as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+
+    try:
+        logo_base64 = get_base64_of_bin_file("src/app/assets/logo.png")
+        logo_html = f"url('data:image/png;base64,{logo_base64}')"
+    except:
+        # Fallback to URL if local file fails
+        logo_html = "url('https://i.ibb.co/YBxJxqK/logo.png')"
+
+    st.markdown(f"""
+    <style>
+        /* Hide default Streamlit Logo if present */
+        [data-testid="stLogo"] {{
+            display: none !important;
+        }}
+
+        /* Inject Logo above Sidebar Navigation */
+        [data-testid="stSidebarNav"]::before {{
+            content: "";
+            display: block;
+            margin: -40px auto 30px -20px;
+            width: 320px;
+            height: 150px;
+            background-image: {logo_html};
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+            transition: transform 0.3s ease;
+        }}
+        
+        /* Hover Effect */
+        [data-testid="stSidebarNav"]::before:hover {{
+            transform: scale(1.05);
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2));
+        }}
+        
+        /* Add a decorative container look */
+        [data-testid="stSidebarNav"] {{
+            background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, transparent 100%);
+            padding-top: 20px !important;
+        }}
+    </style>
+    """, unsafe_allow_html=True)
 
     # Sidebar Styling & Content
     with st.sidebar:
@@ -179,14 +229,22 @@ def show_dashboard():
         # Metrics Row with colorful border-left design
         col1, col2, col3, col4 = st.columns(4)
         
+        # Colors from palette:
+        # Orange: #F57C00
+        # Light Green: #A6D86B
+        # Grayish Blue: #BCC5D6
+        # Fuchsia: #D92B7D
+        # Yellow: #FFD54F
+        
         with col1:
             st.markdown(f"""
-            <div class="metric-card delay-1" style="border-left: 4px solid #F57C00;">
-                <div class="metric-label">Total Visitors</div>
-                <div id="counter-visitors" class="metric-value">{total_visitors:,}</div>
-                <div class="metric-sub" style="color: #64748b;">
-                    📅 Data from: {data_date}
+            <div class="metric-card delay-1" style="border-left: 5px solid #F57C00;">
+                <div class="metric-sub" style="color: #F57C00;">
+                    <span style="background: #F57C00; width: 8px; height: 8px; border-radius: 50%; display: inline-block;"></span>
+                    LIVE VISITORS
                 </div>
+                <div id="counter-visitors" class="metric-value">{total_visitors:,}</div>
+                <div class="metric-label">Park Guests</div>
                 <div class="progress-bg">
                     <div class="progress-fill" data-width="75" style="background: #F57C00;"></div>
                 </div>
@@ -194,14 +252,16 @@ def show_dashboard():
             """, unsafe_allow_html=True)
             
         with col2:
-            health_color = "#10b981" if system_health > 90 else "#f59e0b" if system_health > 70 else "#ef4444"
+            # Dynamic health color based on palette
+            health_color = "#A6D86B" if system_health > 90 else "#FFD54F" if system_health > 70 else "#D92B7D"
             st.markdown(f"""
-            <div class="metric-card delay-2" style="border-left: 4px solid {health_color};">
-                <div class="metric-label">System Health</div>
-                <div id="counter-health" class="metric-value">{system_health:.1f}%</div>
+            <div class="metric-card delay-2" style="border-left: 5px solid {health_color};">
                 <div class="metric-sub" style="color: {health_color};">
-                    Operational Facilities
+                    <span style="background: {health_color}; width: 8px; height: 8px; border-radius: 50%; display: inline-block;"></span>
+                    SYSTEM HEALTH
                 </div>
+                <div id="counter-health" class="metric-value">{system_health:.1f}%</div>
+                <div class="metric-label">Operational Status</div>
                 <div class="progress-bg">
                     <div class="progress-fill" data-width="{system_health}" style="background: {health_color};"></div>
                 </div>
@@ -210,28 +270,30 @@ def show_dashboard():
             
         with col3:
             st.markdown(f"""
-            <div class="metric-card delay-3" style="border-left: 4px solid #3b82f6;">
-                <div class="metric-label">Avg Wait Time</div>
-                <div id="counter-wait" class="metric-value">{avg_wait} min</div>
-                <div class="metric-sub" style="color: #3b82f6;">
-                    ⏱️ Park-wide Average
+            <div class="metric-card delay-3" style="border-left: 5px solid #142C63;">
+                <div class="metric-sub" style="color: #142C63;">
+                    <span style="background: #142C63; width: 8px; height: 8px; border-radius: 50%; display: inline-block;"></span>
+                    AVG WAIT TIME
                 </div>
+                <div id="counter-wait" class="metric-value">{avg_wait} min</div>
+                <div class="metric-label">Across All Rides</div>
                 <div class="progress-bg">
-                    <div class="progress-fill" data-width="{min(100, avg_wait * 2)}" style="background: #3b82f6;"></div>
+                    <div class="progress-fill" data-width="{min(100, avg_wait * 2)}" style="background: #142C63;"></div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
             
         with col4:
             st.markdown(f"""
-            <div class="metric-card delay-4" style="border-left: 4px solid #6366f1;">
-                <div class="metric-label">Predicted Peak</div>
-                <div style="font-size: 1.8rem; font-weight: 800; color: #0f172a; margin: 10px 0;">{peak_time}</div>
-                <div class="metric-sub" style="color: #6366f1;">
-                    📊 ~{capacity_pct}% Capacity
+            <div class="metric-card delay-4" style="border-left: 5px solid #D92B7D;">
+                <div class="metric-sub" style="color: #D92B7D;">
+                    <span style="background: #D92B7D; width: 8px; height: 8px; border-radius: 50%; display: inline-block;"></span>
+                    PREDICTED PEAK
                 </div>
+                <div id="counter-peak" class="metric-value">{peak_time}</div>
+                <div class="metric-label">~{capacity_pct}% Capacity</div>
                 <div class="progress-bg">
-                    <div class="progress-fill" data-width="{capacity_pct}" style="background: #6366f1;"></div>
+                    <div class="progress-fill" data-width="{capacity_pct}" style="background: #D92B7D;"></div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -268,8 +330,8 @@ def show_dashboard():
         
         .metric-card:hover {
             transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 15px 30px rgba(20, 44, 99, 0.1);
+            border-color: rgba(245, 124, 0, 0.3);
         }
         
         /* Staggered Delays */
@@ -280,7 +342,7 @@ def show_dashboard():
         
         /* Progress Bar */
         .progress-bg {
-            background: #f1f5f9;
+            background: #F1F5F9;
             height: 6px;
             border-radius: 3px;
             margin-top: 15px;
@@ -298,7 +360,7 @@ def show_dashboard():
         .metric-value {
             font-size: 2.2rem;
             font-weight: 800;
-            color: #0f172a;
+            color: #142C63;
             margin: 10px 0;
             font-variant-numeric: tabular-nums;
             letter-spacing: -1px;
@@ -334,16 +396,16 @@ def show_dashboard():
         .pulse-dot {
             width: 8px;
             height: 8px;
-            background: #10b981;
+            background: #A6D86B;
             border-radius: 50%;
             display: inline-block;
-            box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 0 rgba(166, 216, 107, 0.4);
             animation: pulse 2s infinite;
         }
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(166, 216, 107, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(166, 216, 107, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(166, 216, 107, 0); }
         }
         </style>
         
@@ -411,19 +473,25 @@ def show_dashboard():
             
             # --- Chart 1: Facility Status Treemap ---
             # This gives a bird's-eye view of all rides, sized by wait time
+            # Custom color scale based on palette: Light Green -> Yellow -> Orange -> Fuchsia
             fig_treemap = px.treemap(
                 latest_data,
                 path=[px.Constant("Park Zones"), 'entity_description_short'],
                 values='wait_time_max',
                 color='wait_time_max',
-                color_continuous_scale='RdYlGn_r', # Red for high wait, Green for low
+                color_continuous_scale=[
+                    [0, '#A6D86B'],    # Low wait (Light Green)
+                    [0.33, '#FFD54F'], # Medium wait (Yellow)
+                    [0.66, '#F57C00'], # High wait (Orange)
+                    [1, '#D92B7D']     # Very high wait (Fuchsia)
+                ],
                 title='<b>🎡 Facility Load Heatmap</b>'
             )
             
             fig_treemap.update_layout(
                 margin=dict(t=50, l=25, r=25, b=25),
                 height=400,
-                font=dict(family="Inter, sans-serif"),
+                font=dict(family="Outfit, sans-serif"), # Updated font
                 paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)',
             )
@@ -439,7 +507,7 @@ def show_dashboard():
                 y='wait_time_max',
                 title='<b>📈 Park Activity Trend (Hourly)</b>',
                 labels={'hour': 'Hour of Day', 'wait_time_max': 'Avg Wait (min)'},
-                color_discrete_sequence=['#3b82f6']
+                color_discrete_sequence=['#142C63'] # Dark Blue
             )
             
             fig_trend.update_layout(

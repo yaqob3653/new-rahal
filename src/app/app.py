@@ -2,6 +2,9 @@ import streamlit as st
 from dotenv import load_dotenv
 import os
 
+# Load Environment Variables FIRST (before importing modules that need them)
+load_dotenv()
+
 # Import modules
 from src.app.login_page import login_page
 from src.app.dashboard import show_dashboard
@@ -13,9 +16,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
-# Load Environment Variables
-load_dotenv()
 
 def main():
     # Initialize Session State

@@ -56,8 +56,13 @@ def get_dashboard_metrics():
     # 4. Predicted Peak (Data-Driven Fallback)
     try:
         model = joblib.load('src/models/crowd_model.pkl')
-        # Dummy prediction for now if model exists
-        capacity_pct = 85 
+        # Use actual prediction from model
+        future = model.make_future_dataframe(periods=1)
+        forecast = model.predict(future)
+        # Calculate capacity percentage based on predicted attendance
+        # Assuming max capacity is around 20000 visitors
+        predicted_attendance = forecast.iloc[-1]['yhat']
+        capacity_pct = min(100, int((predicted_attendance / 20000) * 100))
     except:
         # Fallback: Find hour with max wait time in history
         peak_query = supabase.table("waiting_times").select("work_date, wait_time_max").order("wait_time_max", desc=True).limit(1).execute()

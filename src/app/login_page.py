@@ -24,7 +24,7 @@ def login_page():
         
         /* Blue Gradient Background for the App */
         .stApp {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #142C63 0%, #0f2147 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -45,7 +45,7 @@ def login_page():
         
         /* Left Column (Blue Brand Panel) */
         [data-testid="stHorizontalBlock"] > div:nth-child(1) {
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+            background: linear-gradient(135deg, #142C63 0%, #1e40af 100%) !important;
             padding: 0 !important;
         }
         
@@ -73,22 +73,22 @@ def login_page():
         
         /* Input Styling */
         .stTextInput > div > div > input {
-            background-color: #f8fafc !important;
-            border: 2px solid #e2e8f0 !important;
+            background-color: #F8FAFC !important;
+            border: 2px solid #BCC5D6 !important;
             border-radius: 10px !important;
             padding: 16px !important;
             font-size: 15px !important;
-            color: #1e293b !important;
+            color: #142C63 !important;
             transition: all 0.3s !important;
         }
         .stTextInput > div > div > input:focus {
-            border-color: #3b82f6 !important;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+            border-color: #F57C00 !important;
+            box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.1) !important;
         }
         
         /* Button Styling */
         .stButton > button {
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+            background: linear-gradient(135deg, #F57C00 0%, #FF9800 100%) !important;
             color: white !important;
             border: none !important;
             border-radius: 10px !important;
@@ -98,17 +98,18 @@ def login_page():
             width: 100% !important;
             margin-top: 20px !important;
             transition: all 0.3s !important;
-            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.4) !important;
+            box-shadow: 0 4px 15px rgba(245, 124, 0, 0.4) !important;
         }
         .stButton > button:hover {
             transform: translateY(-2px) !important;
-            box-shadow: 0 6px 20px rgba(30, 64, 175, 0.6) !important;
+            box-shadow: 0 6px 20px rgba(245, 124, 0, 0.6) !important;
+            background: linear-gradient(135deg, #D92B7D 0%, #E91E63 100%) !important;
         }
         
         /* Tab Styling */
         .stTabs [data-baseweb="tab-list"] {
             gap: 10px;
-            border-bottom: 2px solid #e2e8f0;
+            border-bottom: 2px solid #BCC5D6;
             margin-bottom: 20px;
         }
         .stTabs [data-baseweb="tab"] {
@@ -117,8 +118,8 @@ def login_page():
             font-weight: 600;
         }
         .stTabs [aria-selected="true"] {
-            color: #3b82f6;
-            border-bottom: 3px solid #3b82f6;
+            color: #F57C00;
+            border-bottom: 3px solid #F57C00;
         }
         
         /* Fix Checkbox */
