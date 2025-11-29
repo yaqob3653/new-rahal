@@ -176,9 +176,18 @@ def login_page():
             </p>
             <div style="margin-top: 40px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; backdrop-filter: blur(10px);">
                 <p style="font-size: 0.9rem; margin: 0; opacity: 0.9; color: white;">
-                    🎢 Real-time Insights<br>
-                    📊 Predictive Analytics<br>
-                    🤖 AI-Powered Recommendations
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 22a10 10 0 0 1 10-10"/><circle cx="12" cy="12" r="2"/></svg>
+                        <span>Real-time Insights</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        <span>Predictive Analytics</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
+                        <span>AI-Powered Recommendations</span>
+                    </div>
                 </p>
             </div>
         </div>
@@ -204,7 +213,7 @@ def login_page():
             with st.container():
                  st.markdown('<div style="margin: 0 50px;">', unsafe_allow_html=True)
                  
-                 tab1, tab2 = st.tabs(["🔐 Login", "📝 Register"])
+                 tab1, tab2 = st.tabs(["Login", "Register"])
                  
                  with tab1:
                      with st.form("login_form", clear_on_submit=False):
@@ -224,19 +233,27 @@ def login_page():
                          
                          if submit:
                              if not email or not password:
-                                 st.error("❌ Please enter both email and password")
+                                 st.error("Please enter both email and password", icon=":material/error:")
                              else:
                                  # Demo mode bypass for testing
                                  if email == "demo@rahhal.com" and password == "demo123":
                                      st.session_state['authenticated'] = True
                                      st.session_state['user'] = {"email": "demo@rahhal.com"}
                                      st.session_state['role'] = role
-                                     st.success("✅ Login Successful! (Demo Mode)")
+                                     st.success("Login Successful! (Demo Mode)", icon=":material/check_circle:")
                                      time.sleep(0.5)
                                      st.rerun()
                                  else:
                                      try:
                                          supabase = get_supabase_client()
+                                         # DEBUG: Check what URL is being used
+                                         from src.app.config import SUPABASE_URL
+                                         if SUPABASE_URL:
+                                             st.info(f"Debug: URL starts with {SUPABASE_URL[:8]}... and ends with ...{SUPABASE_URL[-5:]}")
+                                             st.info(f"Debug: URL length is {len(SUPABASE_URL)}")
+                                         else:
+                                             st.error("Debug: SUPABASE_URL is None or Empty")
+                                             
                                          if supabase:
                                              # Authenticate with Supabase
                                              res = supabase.auth.sign_in_with_password({
