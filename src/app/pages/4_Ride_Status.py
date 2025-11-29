@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+from src.app.config import SUPABASE_URL, SUPABASE_KEY
 
 if 'authenticated' not in st.session_state or not st.session_state['authenticated']:
     st.warning("Please login first.")
@@ -12,14 +13,9 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from supabase import create_client
-import os
-from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 def init_supabase():
     if not SUPABASE_URL or not SUPABASE_KEY:
@@ -38,8 +34,13 @@ def local_css(file_name):
 
 local_css("src/app/style.css")
 
-st.markdown("# 🎡 Facility Operations Center")
-st.markdown("### Real-time Ride Performance & Status")
+from src.app.utils.ui_components import render_page_header
+
+render_page_header(
+    title="Facility Operations Center",
+    subtitle="Real-time Ride Performance & Status",
+    lottie_url="https://lottie.host/f06068cc-8949-4e62-b88f-6932603aca1f/8KTreeanyv.lottie"  # Using the same high-quality park animation
+)
 
 # --- Real Data Loading ---
 # --- Real Data Loading ---

@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+from src.app.config import SUPABASE_URL, SUPABASE_KEY
 
 if 'authenticated' not in st.session_state or not st.session_state['authenticated']:
     st.warning("Please login first.")
@@ -13,15 +14,10 @@ import joblib
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
-import os
 from supabase import create_client
-from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 def init_supabase():
     if not SUPABASE_URL or not SUPABASE_KEY:
@@ -40,8 +36,13 @@ def local_css(file_name):
 
 local_css("src/app/style.css")
 
-st.markdown("# 📊 Crowd Prediction & Analytics")
-st.markdown("### AI-Powered Attendance Forecasting")
+from src.app.utils.ui_components import render_page_header
+
+render_page_header(
+    title="Crowd Prediction & Analytics",
+    subtitle="AI-Powered Attendance Forecasting",
+    lottie_url="https://lottie.host/cb4cd462-66c4-4c39-9a5b-158591ac17f5/98O3iwEkXZ.lottie"
+)
 
 # --- Real Data Loading & Prediction ---
 @st.cache_data(ttl=3600)

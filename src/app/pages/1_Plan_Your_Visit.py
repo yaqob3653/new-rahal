@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+from src.app.config import SUPABASE_URL, SUPABASE_KEY
 
 if 'authenticated' not in st.session_state or not st.session_state['authenticated']:
     st.warning("Please login first.")
@@ -10,15 +11,10 @@ if 'authenticated' not in st.session_state or not st.session_state['authenticate
 import pandas as pd
 import numpy as np
 import joblib
-import os
 from supabase import create_client
-from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 def init_supabase():
     if not SUPABASE_URL or not SUPABASE_KEY:
@@ -48,8 +44,75 @@ def local_css(file_name):
 
 local_css("src/app/style.css")
 
-st.markdown("# 🎯 Smart Recommendations")
-st.markdown("### Personalized Ride Suggestions Engine")
+# Inject Fun/Disney-like CSS ONLY for this page
+st.markdown("""
+<style>
+    /* Animated Background Gradient for this page only */
+    .stApp {
+        background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+    }
+
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Glassmorphism Cards */
+    .card, div[data-testid="stExpander"], .stMetric {
+        background: rgba(255, 255, 255, 0.7) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        border-radius: 20px !important;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15) !important;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    }
+
+    .card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 15px 40px rgba(31, 38, 135, 0.25) !important;
+        border-color: #F57C00 !important;
+    }
+
+    /* Fun Headings */
+    h1, h2, h3 {
+        background: linear-gradient(120deg, #142C63, #D92B7D);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+    }
+
+    /* Interactive Buttons */
+    div.stButton > button {
+        background: linear-gradient(45deg, #142C63, #3b82f6) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    div.stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6) !important;
+        background: linear-gradient(45deg, #3b82f6, #142C63) !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+from src.app.utils.ui_components import render_page_header, inject_particles, trigger_fireworks
+
+# Inject Magical Particles
+inject_particles()
+
+render_page_header(
+    title="Smart Recommendations",
+    subtitle="Personalized Ride Suggestions Engine",
+    lottie_url="https://lottie.host/d1cb8951-bcb4-453c-b9dc-d39edd28b796/DzWSR5Rb4p.lottie"
+)
 
 # Layout: Two columns (Input Form | Results)
 col_input, col_result = st.columns([1, 2])
@@ -57,7 +120,7 @@ col_input, col_result = st.columns([1, 2])
 with col_input:
     st.markdown("""
     <div class="card">
-        <h4>👤 Visitor Profile</h4>
+        <h4>Visitor Profile</h4>
     """, unsafe_allow_html=True)
     
     with st.form("user_input_form"):
@@ -70,12 +133,15 @@ with col_input:
         pref_family = st.slider("Family Oriented", 0.0, 1.0, 0.5)
         pref_food = st.slider("Foodie Score", 0.0, 1.0, 0.5)
         
-        submitted = st.form_submit_button("Generate Recommendations 🚀")
+        submitted = st.form_submit_button("Generate Recommendations", icon=":material/rocket_launch:")
     
     st.markdown("</div>", unsafe_allow_html=True)
 
 with col_result:
     if submitted:
+        # Trigger Celebration!
+        trigger_fireworks()
+
         # 1. Process Input
         acc_map = {"Alone": 0, "Friends": 1, "Family": 2, "With Children": 3}
         acc_val = acc_map[accompanied]
@@ -187,7 +253,11 @@ with col_result:
         st.info("👈 Fill out your profile on the left to get personalized recommendations.")
         
         # Show real popular rides from database
-        st.markdown("### 🔥 Popular Today")
+        render_page_header(
+            title="Popular Today",
+            subtitle="Most Popular & Efficient Rides Right Now",
+            lottie_url="https://lottie.host/2fbfa576-4674-447a-a642-33bdb7802528/fHbZanSbJe.lottie"
+        )
         
         if supabase:
             # Get facilities with lowest wait times (most popular/efficient)

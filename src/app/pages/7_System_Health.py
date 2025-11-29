@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+from src.app.config import SUPABASE_URL, SUPABASE_KEY
 
 if 'authenticated' not in st.session_state or not st.session_state['authenticated']:
     st.warning("Please login first.")
@@ -13,15 +14,10 @@ import plotly.express as px
 import plotly.graph_objects as go
 import joblib
 from sklearn.metrics import mean_absolute_error, mean_squared_error, silhouette_score
-import os
 from supabase import create_client
-from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 def init_supabase():
     if not SUPABASE_URL or not SUPABASE_KEY:
@@ -40,8 +36,13 @@ def local_css(file_name):
 
 local_css("src/app/style.css")
 
-st.markdown("# 📉 Model Performance Evaluation")
-st.markdown("### Technical Validation of AI Models")
+from src.app.utils.ui_components import render_page_header
+
+render_page_header(
+    title="Model Performance Evaluation",
+    subtitle="Technical Validation of AI Models",
+    lottie_url="https://lottie.host/d162a475-bccd-4613-828d-42ed00268a55/rvWKCI5xyM.lottie"
+)
 
 # Tabs
 tab1, tab2, tab3 = st.tabs(["📊 Crowd Prediction (Prophet)", "🎯 Recommendation (K-Means)", "😊 Sentiment (VADER)"])

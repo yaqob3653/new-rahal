@@ -2,19 +2,15 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-import os
-from dotenv import load_dotenv
 from supabase import create_client
 import plotly.graph_objects as go
 import time
+from src.app.config import SUPABASE_URL, SUPABASE_KEY
 
 # Page config
 st.set_page_config(page_title="Virtual Assistant - Rahhal", page_icon="🤖", layout="wide")
 
 # Load environment variables
-load_dotenv()
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 # Initialize Supabase
 @st.cache_resource
@@ -263,37 +259,37 @@ def get_smart_response(user_input):
     
     # Greeting
     if any(word in user_input_lower for word in ['hello', 'hi', 'hey', 'مرحبا', 'السلام']):
-        return "👋 Hello! Welcome to Rahhal Park Virtual Assistant. I'm here to help you have the best experience possible. How can I assist you today?"
+        return "Hello! Welcome to Rahhal Park Virtual Assistant. I'm here to help you have the best experience possible. How can I assist you today?"
     
     # Wait times
     elif any(word in user_input_lower for word in ['wait', 'waiting', 'انتظار', 'وقت']):
         stats = get_current_stats()
         if stats:
-            return f"⏱️ Current average wait time across the park is approximately **{stats['avg_wait']} minutes**. I recommend visiting during off-peak hours (10 AM - 12 PM or 3 PM - 5 PM) for shorter wait times."
-        return "⏱️ Wait times vary throughout the day. Generally, mornings and late afternoons have shorter queues."
+            return f"Current average wait time across the park is approximately **{stats['avg_wait']} minutes**. I recommend visiting during off-peak hours (10 AM - 12 PM or 3 PM - 5 PM) for shorter wait times."
+        return "Wait times vary throughout the day. Generally, mornings and late afternoons have shorter queues."
     
     # Weather
     elif any(word in user_input_lower for word in ['weather', 'طقس', 'حرارة']):
-        return f"🌤️ Today's weather is perfect for visiting! Temperature is comfortable and conditions are ideal for outdoor activities. Don't forget sunscreen!"
+        return f"Today's weather is perfect for visiting! Temperature is comfortable and conditions are ideal for outdoor activities. Don't forget sunscreen!"
     
     # Recommendations
     elif any(word in user_input_lower for word in ['recommend', 'suggest', 'best', 'توصية', 'أفضل']):
-        return "🎯 Based on current conditions, I recommend:\n\n1. **Water Ride** - Low wait time, perfect for the weather\n2. **Oz Theatre** - Great show starting in 30 minutes\n3. **Pirate Ship** - Thrilling experience with moderate queue\n\nWould you like more details about any of these?"
+        return "Based on current conditions, I recommend:\n\n1. **Water Ride** - Low wait time, perfect for the weather\n2. **Oz Theatre** - Great show starting in 30 minutes\n3. **Pirate Ship** - Thrilling experience with moderate queue\n\nWould you like more details about any of these?"
     
     # Crowd levels
     elif any(word in user_input_lower for word in ['crowd', 'busy', 'زحام', 'مزدحم']):
-        return "👥 Current crowd levels are **moderate**. The park is busiest between 12 PM - 3 PM. For a more relaxed experience, I suggest visiting popular attractions either before 11 AM or after 4 PM."
+        return "Current crowd levels are **moderate**. The park is busiest between 12 PM - 3 PM. For a more relaxed experience, I suggest visiting popular attractions either before 11 AM or after 4 PM."
     
     # Facilities
     elif any(word in user_input_lower for word in ['facility', 'facilities', 'ride', 'attraction', 'مرافق', 'ألعاب']):
         stats = get_current_stats()
         if stats:
-            return f"🎢 We have **{stats['facilities']} facilities** available including rides, shows, and dining options. All facilities are currently operational. Would you like recommendations based on your preferences?"
-        return "🎢 We offer a variety of attractions including thrilling rides, family shows, and dining experiences. What type of activity interests you?"
+            return f"We have **{stats['facilities']} facilities** available including rides, shows, and dining options. All facilities are currently operational. Would you like recommendations based on your preferences?"
+        return "We offer a variety of attractions including thrilling rides, family shows, and dining experiences. What type of activity interests you?"
     
     # Help
     elif any(word in user_input_lower for word in ['help', 'مساعدة']):
-        return """🤝 I can help you with:
+        return """I can help you with:
         
 • **Wait Times** - Check current queue lengths
 • **Recommendations** - Get personalized suggestions
@@ -312,7 +308,10 @@ Just ask me anything!"""
 st.markdown("""
 <div class="main-container">
     <div class="assistant-header">
-        <h1>🤖 Rahhal Virtual Assistant</h1>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
+            <h1 style="margin: 0;">Rahhal Virtual Assistant</h1>
+        </div>
         <p>Your intelligent guide to the perfect park experience</p>
     </div>
 </div>
@@ -350,10 +349,16 @@ if stats:
         """, unsafe_allow_html=True)
     
     with col4:
-        sentiment_emoji = "😊" if stats['sentiment'] > 0.5 else "😐" if stats['sentiment'] > 0 else "😞"
+        # Use SVG icons for sentiment
+        if stats['sentiment'] > 0.5:
+            sentiment_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>'
+        elif stats['sentiment'] > 0:
+            sentiment_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>'
+        else:
+            sentiment_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>'
         st.markdown(f"""
         <div class="stat-card">
-            <div class="stat-value">{sentiment_emoji}</div>
+            <div class="stat-value" style="display: flex; justify-content: center; align-items: center; height: 48px;">{sentiment_icon}</div>
             <div class="stat-label">Visitor Sentiment</div>
         </div>
         """, unsafe_allow_html=True)
@@ -367,19 +372,19 @@ if 'quick_action_clicked' not in st.session_state:
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    if st.button("⏱️ Wait Times", key="btn_wait", use_container_width=True):
+    if st.button("Wait Times", icon=":material/timer:", key="btn_wait", use_container_width=True):
         st.session_state.quick_action_clicked = "What are the current wait times?"
 
 with col2:
-    if st.button("🎯 Recommendations", key="btn_rec", use_container_width=True):
+    if st.button("Recommendations", icon=":material/target:", key="btn_rec", use_container_width=True):
         st.session_state.quick_action_clicked = "What do you recommend?"
 
 with col3:
-    if st.button("👥 Crowd Levels", key="btn_crowd", use_container_width=True):
+    if st.button("Crowd Levels", icon=":material/groups:", key="btn_crowd", use_container_width=True):
         st.session_state.quick_action_clicked = "How crowded is it?"
 
 with col4:
-    if st.button("🌤️ Weather", key="btn_weather", use_container_width=True):
+    if st.button("Weather", icon=":material/wb_sunny:", key="btn_weather", use_container_width=True):
         st.session_state.quick_action_clicked = "What's the weather like?"
 
 # Process quick action
@@ -403,7 +408,7 @@ with chat_container:
         st.markdown("""
         <div class="message assistant-message">
             <div class="message-bubble assistant-bubble">
-                👋 Hello! I'm your Rahhal Park Virtual Assistant. I can help you with:
+                Hello! I'm your Rahhal Park Virtual Assistant. I can help you with:
                 <br><br>
                 • Current wait times and crowd levels<br>
                 • Personalized activity recommendations<br>
@@ -454,7 +459,7 @@ if user_input:
 
 # Clear chat button
 if st.session_state.messages:
-    if st.button("🗑️ Clear Chat", type="secondary"):
+    if st.button("Clear Chat", icon=":material/delete:", type="secondary"):
         st.session_state.messages = []
         st.session_state.conversation_started = False
         st.rerun()

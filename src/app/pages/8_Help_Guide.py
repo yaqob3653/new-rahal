@@ -18,11 +18,11 @@ def local_css(file_name):
 
 local_css("src/app/style.css")
 
-st.markdown("# 📚 Project Documentation")
+st.title("📚 Project Documentation")
 st.markdown("### Rahhal Analytics System Architecture & Guide")
 
 # --- System Architecture ---
-st.markdown("## 🏗️ System Architecture")
+st.header("🏗️ System Architecture")
 st.markdown("""
 The system follows a modern **Data Engineering & Data Science Pipeline**:
 """)
@@ -74,7 +74,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Tech Stack ---
-st.markdown("## 🛠️ Technology Stack")
+st.header("🛠️ Technology Stack")
 c1, c2, c3, c4, c5 = st.columns(5)
 
 with c1:
@@ -94,7 +94,7 @@ with c5:
     st.caption("Scikit-Learn")
 
 # --- Features Guide ---
-st.markdown("## 🚀 Features Guide")
+st.header("🚀 Features Guide")
 st.markdown("""
 | Module | Description | Target Audience |
 | :--- | :--- | :--- |

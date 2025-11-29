@@ -1,22 +1,10 @@
 import pandas as pd
 from supabase import create_client
-from dotenv import load_dotenv
-import os
 import numpy as np
 import joblib
 from datetime import datetime
 import streamlit as st
-
-# Load environment variables
-load_dotenv()
-
-# Try to get from Streamlit secrets first, then fall back to environment variables
-try:
-    SUPABASE_URL = st.secrets.get("SUPABASE_URL", os.getenv("SUPABASE_URL"))
-    SUPABASE_KEY = st.secrets.get("SUPABASE_KEY", os.getenv("SUPABASE_KEY"))
-except:
-    SUPABASE_URL = os.getenv("SUPABASE_URL")
-    SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+from src.app.config import SUPABASE_URL, SUPABASE_KEY
 
 def get_supabase_client():
     if not SUPABASE_URL or not SUPABASE_KEY:

@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+from src.app.config import SUPABASE_URL, SUPABASE_KEY
 
 if 'authenticated' not in st.session_state or not st.session_state['authenticated']:
     st.warning("Please login first.")
@@ -10,15 +11,10 @@ if 'authenticated' not in st.session_state or not st.session_state['authenticate
 import pandas as pd
 import networkx as nx
 import plotly.graph_objects as go
-import os
 from supabase import create_client
-from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 def init_supabase():
     if not SUPABASE_URL or not SUPABASE_KEY:
@@ -37,8 +33,13 @@ def local_css(file_name):
 
 local_css("src/app/style.css")
 
-st.markdown("# 🗺️ AI Route Optimizer")
-st.markdown("### Find the Fastest Path Through the Park")
+from src.app.utils.ui_components import render_page_header
+
+render_page_header(
+    title="AI Route Optimizer",
+    subtitle="Find the Fastest Path Through the Park",
+    lottie_url="https://lottie.host/cceeaa7f-fec4-4724-9140-5764fc248808/VnEXTCzOJd.lottie"
+)
 
 # --- Graph Logic ---
 # We'll build a graph where nodes are attractions and edges are paths with weights (walking time + wait time)
