@@ -244,44 +244,6 @@ def login_page():
                                      time.sleep(0.5)
                                      st.rerun()
                                  else:
-                                     # NETWORK DIAGNOSTIC
-                                     import requests
-                                     import socket
-                                     from urllib.parse import urlparse
-                                     
-                                     st.write("--- Advanced Network Diagnostic ---")
-                                     from src.app.config import SUPABASE_URL
-                                     
-                                     # 0. Check for hidden characters
-                                     st.code(f"URL Repr: {repr(SUPABASE_URL)}", language="python")
-                                     
-                                     # 1. Check General Internet (Google)
-                                     try:
-                                         st.write("Resolving google.com...")
-                                         ip = socket.gethostbyname("google.com")
-                                         st.success(f"Google DNS OK: {ip}")
-                                     except Exception as e:
-                                         st.error(f"Google DNS Failed: {e}")
-
-                                     # 2. Check Supabase Main Domain
-                                     try:
-                                         st.write("Resolving supabase.co...")
-                                         ip = socket.gethostbyname("supabase.co")
-                                         st.success(f"Supabase Main DNS OK: {ip}")
-                                     except Exception as e:
-                                         st.error(f"Supabase Main DNS Failed: {e}")
-
-                                     # 3. Check Project Domain
-                                     try:
-                                         domain = urlparse(SUPABASE_URL).netloc
-                                         st.write(f"Resolving Project: {domain}")
-                                         ip = socket.gethostbyname(domain)
-                                         st.success(f"Project DNS Resolved: {ip}")
-                                     except Exception as e:
-                                         st.error(f"Project DNS Failed: {e}")
-                                     
-                                     st.write("-------------------------------------")
-
                                      try:
                                          supabase = get_supabase_client()
                                          if supabase:
