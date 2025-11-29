@@ -20,12 +20,15 @@ def get_env_var(key, default=None):
     Returns:
         The environment variable value
     """
+    # Try Streamlit secrets first (for Cloud deployment)
     try:
-        # Try Streamlit secrets first (for Cloud deployment)
-        return st.secrets.get(key, os.getenv(key, default))
+        if hasattr(st, 'secrets') and key in st.secrets:
+            return st.secrets[key]
     except:
-        # Fall back to os.getenv (for local development)
-        return os.getenv(key, default)
+        pass
+    
+    # Fall back to os.getenv (for local development)
+    return os.getenv(key, default)
 
 # Load configuration
 SUPABASE_URL = get_env_var("SUPABASE_URL")
