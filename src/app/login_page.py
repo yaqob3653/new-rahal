@@ -249,26 +249,38 @@ def login_page():
                                      import socket
                                      from urllib.parse import urlparse
                                      
-                                     st.write("--- Network Diagnostic ---")
+                                     st.write("--- Advanced Network Diagnostic ---")
                                      from src.app.config import SUPABASE_URL
                                      
-                                     # 1. Check DNS Resolution
+                                     # 0. Check for hidden characters
+                                     st.code(f"URL Repr: {repr(SUPABASE_URL)}", language="python")
+                                     
+                                     # 1. Check General Internet (Google)
+                                     try:
+                                         st.write("Resolving google.com...")
+                                         ip = socket.gethostbyname("google.com")
+                                         st.success(f"Google DNS OK: {ip}")
+                                     except Exception as e:
+                                         st.error(f"Google DNS Failed: {e}")
+
+                                     # 2. Check Supabase Main Domain
+                                     try:
+                                         st.write("Resolving supabase.co...")
+                                         ip = socket.gethostbyname("supabase.co")
+                                         st.success(f"Supabase Main DNS OK: {ip}")
+                                     except Exception as e:
+                                         st.error(f"Supabase Main DNS Failed: {e}")
+
+                                     # 3. Check Project Domain
                                      try:
                                          domain = urlparse(SUPABASE_URL).netloc
-                                         st.write(f"Resolving domain: {domain}")
+                                         st.write(f"Resolving Project: {domain}")
                                          ip = socket.gethostbyname(domain)
-                                         st.success(f"DNS Resolved: {ip}")
+                                         st.success(f"Project DNS Resolved: {ip}")
                                      except Exception as e:
-                                         st.error(f"DNS Failed: {e}")
+                                         st.error(f"Project DNS Failed: {e}")
                                      
-                                     # 2. Check HTTP Reachability
-                                     try:
-                                         st.write(f"Pinging: {SUPABASE_URL}")
-                                         r = requests.get(SUPABASE_URL, timeout=5)
-                                         st.success(f"HTTP Status: {r.status_code}")
-                                     except Exception as e:
-                                         st.error(f"HTTP Failed: {e}")
-                                     st.write("--------------------------")
+                                     st.write("-------------------------------------")
 
                                      try:
                                          supabase = get_supabase_client()
