@@ -272,6 +272,7 @@ def login_page():
 
                                      try:
                                          supabase = get_supabase_client()
+                                         if supabase:
                                              # Authenticate with Supabase
                                              res = supabase.auth.sign_in_with_password({
                                                  "email": email, 
