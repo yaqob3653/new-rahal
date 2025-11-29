@@ -88,7 +88,11 @@ def get_chart_data():
     
     # Simplified: Just get the latest 500 records ordered by date
     # This avoids the timeout issue from checking today's date first
-    wait_response = supabase.table("waiting_times").select("entity_description_short, wait_time_max, work_date").order("work_date", desc=True).limit(500).execute()
-    wait_df = pd.DataFrame(wait_response.data)
+    try:
+        wait_response = supabase.table("waiting_times").select("entity_description_short, wait_time_max, work_date").order("work_date", desc=True).limit(500).execute()
+        wait_df = pd.DataFrame(wait_response.data)
+    except Exception as e:
+        print(f"Error fetching chart data: {e}")
+        wait_df = pd.DataFrame()
     
     return wait_df
