@@ -13,7 +13,7 @@ def login_page():
         /* Hide Streamlit UI */
         header, footer, #MainMenu, [data-testid="stToolbar"], 
         [data-testid="stDecoration"], [data-testid="stStatusWidget"],
-        [data-testid="stHeader"], [data-testid="stSidebar"] {
+        [data-testid="stHeader"] {
             display: none !important;
         }
         
