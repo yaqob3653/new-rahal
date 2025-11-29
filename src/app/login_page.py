@@ -244,17 +244,34 @@ def login_page():
                                      time.sleep(0.5)
                                      st.rerun()
                                  else:
+                                     # NETWORK DIAGNOSTIC
+                                     import requests
+                                     import socket
+                                     from urllib.parse import urlparse
+                                     
+                                     st.write("--- Network Diagnostic ---")
+                                     from src.app.config import SUPABASE_URL
+                                     
+                                     # 1. Check DNS Resolution
+                                     try:
+                                         domain = urlparse(SUPABASE_URL).netloc
+                                         st.write(f"Resolving domain: {domain}")
+                                         ip = socket.gethostbyname(domain)
+                                         st.success(f"DNS Resolved: {ip}")
+                                     except Exception as e:
+                                         st.error(f"DNS Failed: {e}")
+                                     
+                                     # 2. Check HTTP Reachability
+                                     try:
+                                         st.write(f"Pinging: {SUPABASE_URL}")
+                                         r = requests.get(SUPABASE_URL, timeout=5)
+                                         st.success(f"HTTP Status: {r.status_code}")
+                                     except Exception as e:
+                                         st.error(f"HTTP Failed: {e}")
+                                     st.write("--------------------------")
+
                                      try:
                                          supabase = get_supabase_client()
-                                         # DEBUG: Check what URL is being used
-                                         from src.app.config import SUPABASE_URL
-                                         if SUPABASE_URL:
-                                             st.info(f"Debug: URL starts with {SUPABASE_URL[:8]}... and ends with ...{SUPABASE_URL[-5:]}")
-                                             st.info(f"Debug: URL length is {len(SUPABASE_URL)}")
-                                         else:
-                                             st.error("Debug: SUPABASE_URL is None or Empty")
-                                             
-                                         if supabase:
                                              # Authenticate with Supabase
                                              res = supabase.auth.sign_in_with_password({
                                                  "email": email, 
