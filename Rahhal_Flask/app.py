@@ -507,5 +507,5 @@ def logout():
     flash('Logged out successfully.', 'info')
     return redirect(url_for('login'))
 
-if __name__ == '__main__':
+if __name__ == '__main__' and not os.environ.get('VERCEL_ENV'):
     app.run(debug=True, port=5000)
