@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Feedback | Rahhal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        /* Feedback Specific Styles */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            text-align: center;
+            border-left: 5px solid #ccc;
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+
+        .kpi-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .tag {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            background: #F0F2F6;
+        }
+
+        .review-item {
+            padding: 15px;
+            border-bottom: 1px solid #F1F5F9;
+            margin-bottom: 10px;
+            border-left: 4px solid #ccc;
+            background: #FAFAFA;
+            border-radius: 8px;
+        }
+
+        .review-text {
+            font-style: italic;
+            color: #334155;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .review-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #94A3B8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2 style="color: #142C63; margin-bottom: 30px;">Rahhal 🌍</h2>
+        <div class="user-profile">
+            <div
+                style="width: 40px; height: 40px; background: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                {{ session['user']['email'][0].upper() }}
+            </div>
+            <div>
+                <div style="font-weight: 700; color: #142C63;">{{ session['user']['email'] }}</div>
+                <div style="font-size: 0.85rem; color: #64748b;">Admin</div>
+            </div>
+        </div>
+
+        <nav style="flex: 1; overflow-y: auto;">
+            <a href="/dashboard" class="nav-item">📊 Dashboard</a>
+            <a href="/plan" class="nav-item">📅 Plan Your Visit</a>
+            <a href="/forecast" class="nav-item">🤖 Crowd Forecast</a>
+            <a href="/feedback" class="nav-item active">📝 Visitor Feedback</a>
+            <a href="/rides" class="nav-item">🎢 Ride Status</a>
+            <a href="/insights" class="nav-item">💡 Park Insights</a>
+            <a href="/map" class="nav-item">🗺️ Smart Map</a>
+            <a href="/health" class="nav-item">⚡ System Health</a>
+            <a href="/assistant" class="nav-item">🤖 AI Assistant</a>
+            <a href="/help" class="nav-item">❓ Help Guide</a>
+        </nav>
+
+        <a href="/logout"
+            style="display: block; padding: 12px; background: #FEE2E2; color: #DC2626; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: auto;">
+            🚪 Logout
+        </a>
+    </div>
+
+    <div class="main-content">
+        <h1 style="color: #142C63; margin-bottom: 30px;">Visitor Feedback 📝</h1>
+
+        <!-- KPIs -->
+        <div class="kpi-grid">
+            <div class="kpi-card" style="border-left-color: #A6D86B;">
+                <div class="kpi-label">Overall Sentiment Score</div>
+                <div class="kpi-value" style="color: #A6D86B;">{{ "%.2f"|format(avg_sentiment) }}</div>
+                <div style="font-size: 0.8rem; color: #64748b;">Scale: -1.0 to +1.0</div>
+            </div>
+            <div class="kpi-card" style="border-left-color: #142C63;">
+                <div class="kpi-label">Positive Reviews</div>
+                <div class="kpi-value" style="color: #142C63;">{{ "%.0f"|format(positive_pct) }}%</div>
+                <div style="font-size: 0.8rem; color: #64748b;">Visitors are happy!</div>
+            </div>
+            <div class="kpi-card" style="border-left-color: #D92B7D;">
+                <div class="kpi-label">Negative Feedback</div>
+                <div class="kpi-value" style="color: #D92B7D;">{{ "%.0f"|format(negative_pct) }}%</div>
+                <div style="font-size: 0.8rem; color: #64748b;">Areas for improvement</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3 style="color: #142C63; margin-top: 0;">📈 Sentiment Trend</h3>
+                <div id="trend-chart"></div>
+            </div>
+            <div class="chart-card">
+                <h3 style="color: #142C63; margin-top: 0;">🍩 Distribution</h3>
+                <div id="pie-chart"></div>
+            </div>
+        </div>
+
+        <!-- Bottom Row -->
+        <div class="reviews-grid">
+            <div class="chart-card">
+                <h3 style="color: #142C63; margin-top: 0;">☁️ Common Keywords</h3>
+                <div class="tag-cloud">
+                    <span class="tag" style="font-size: 1.5rem; color: #D92B7D;">Queue</span>
+                    <span class="tag" style="font-size: 1.3rem; color: #142C63;">Fun</span>
+                    <span class="tag" style="font-size: 1.3rem; color: #D92B7D;">Wait</span>
+                    <span class="tag" style="font-size: 1.2rem; color: #142C63;">Family</span>
+                    <span class="tag" style="font-size: 1.2rem; color: #142C63;">FastPass</span>
+                    <span class="tag" style="font-size: 1.1rem; color: #F57C00;">Food</span>
+                    <span class="tag" style="font-size: 1.0rem; color: #142C63;">Staff</span>
+                    <span class="tag" style="font-size: 1.0rem; color: #142C63;">Clean</span>
+                    <span class="tag" style="font-size: 0.9rem; color: #F57C00;">Expensive</span>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3 style="color: #142C63; margin-top: 0;">💬 Recent Feedback</h3>
+                {% for review in recent_reviews %}
+                <div class="review-item"
+                    style="border-left-color: {{ '#A6D86B' if review.Sentiment == 'Positive' else '#D92B7D' if review.Sentiment == 'Negative' else '#FFD54F' }};">
+                    <span class="review-text">"{{ review.Review }}"</span>
+                    <div class="review-meta">
+                        <span>{{ review.Date.strftime('%Y-%m-%d') }}</span>
+                        <span
+                            style="font-weight: bold; color: {{ '#A6D86B' if review.Sentiment == 'Positive' else '#D92B7D' if review.Sentiment == 'Negative' else '#FFD54F' }};">{{
+                            review.Sentiment }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var trendData = {{ trend_json | safe }};
+        var pieData = {{ pie_json | safe }};
+
+        Plotly.newPlot('trend-chart', trendData.data, trendData.layout, { responsive: true, displayModeBar: false });
+        Plotly.newPlot('pie-chart', pieData.data, pieData.layout, { responsive: true, displayModeBar: false });
+    </script>
+</body>
+
+</html>

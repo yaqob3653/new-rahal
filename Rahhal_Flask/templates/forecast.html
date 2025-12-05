@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crowd Forecast | Rahhal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <style>
+        /* Professional Palette */
+        :root {
+            --primary-blue: #142C63;
+            --accent-orange: #F57C00;
+            --light-green: #A6D86B;
+            --grayish-blue: #BCC5D6;
+            --fuchsia: #D92B7D;
+            --yellow: #FFD54F;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            color: var(--primary-blue);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Dashboard Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            border-left: 5px solid #ccc;
+        }
+
+        .metric-card h4 {
+            margin: 0 0 10px 0;
+            font-size: 1rem;
+            color: #64748b;
+        }
+
+        .big-stat {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            margin: 0;
+        }
+
+        .metric-sub {
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .chart-section {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            margin-bottom: 30px;
+        }
+
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .insight-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+            border-left: 4px solid #ccc;
+        }
+
+        .insight-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .insight-title {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .insight-text {
+            color: #64748b;
+            margin: 0;
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo-container">
+            <video autoplay loop muted playsinline class="sidebar-logo">
+                <source src="{{ url_for('static', filename='logo.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="user-profile">
+            <div
+                style="width: 40px; height: 40px; background: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                {{ session['user']['email'][0].upper() }}
+            </div>
+            <div>
+                <div style="font-weight: 700; color: #142C63;">{{ session['user']['email'] }}</div>
+                <div style="font-size: 0.85rem; color: #64748b;">Admin</div>
+            </div>
+        </div>
+
+        <nav style="flex: 1; overflow-y: auto;">
+            <a href="/dashboard" class="nav-item">Dashboard</a>
+            <a href="/plan" class="nav-item">User Recommendations</a>
+            <a href="/forecast" class="nav-item active">Crowd Prediction</a>
+            <a href="/rides" class="nav-item">Facility Analysis</a>
+            <a href="/insights" class="nav-item">EDA</a>
+            <a href="/map" class="nav-item">Route Optimization</a>
+            <a href="/health" class="nav-item">Model Evaluation</a>
+            <a href="/assistant" class="nav-item">Virtual Assistant</a>
+        </nav>
+
+        <a href="/logout"
+            style="display: block; padding: 12px; background: #FEE2E2; color: #DC2626; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: auto;">
+            Logout
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <div class="page-title">
+                    <lottie-player src="https://assets2.lottiefiles.com/packages/lf20_jcikwtux.json"
+                        background="transparent" speed="1" style="width: 60px; height: 60px;" loop
+                        autoplay></lottie-player>
+                    Crowd Prediction & Analytics
+                </div>
+                <div style="color: #64748b; margin-top: 5px;">AI-Powered Attendance Forecasting</div>
+            </div>
+        </div>
+
+        <!-- 1. Top Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card" style="border-left-color: #D92B7D;">
+                <h4>Today's Forecast</h4>
+                <p class="big-stat">{{ "{:,}".format(today_forecast) }}</p>
+                <p class="metric-sub" style="color: #F57C00;">Predicted Visitors</p>
+            </div>
+            <div class="metric-card" style="border-left-color: #142C63;">
+                <h4>Peak Time</h4>
+                <p class="big-stat">{{ peak_time }}</p>
+                <p class="metric-sub" style="color: #666;">Plan accordingly</p>
+            </div>
+            <div class="metric-card" style="border-left-color: #A6D86B;">
+                <h4>Optimal Visit Time</h4>
+                <p class="big-stat">{{ optimal_time }}</p>
+                <p class="metric-sub" style="color: green;">Lowest wait times</p>
+            </div>
+            <div class="metric-card" style="border-left-color: #F57C00;">
+                <h4>Forecast Trend</h4>
+                <p class="big-stat">{{ weather_impact }}</p>
+                <p class="metric-sub" style="color: #666;">vs Tomorrow</p>
+            </div>
+        </div>
+
+        <!-- 2. Main Forecast Chart -->
+        <div class="chart-section">
+            <h3 style="color: var(--primary-blue); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                📅 7-Day Attendance Forecast
+            </h3>
+            <div id="forecast-chart" style="height: 400px;"></div>
+        </div>
+
+        <!-- 3. Heatmap & Insights -->
+        <div class="bottom-grid">
+            <div class="chart-section">
+                <h3
+                    style="color: var(--primary-blue); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    🕒 Hourly Crowd Density Heatmap
+                </h3>
+                <div id="heatmap-chart" style="height: 350px;"></div>
+            </div>
+
+            <div>
+                <h3
+                    style="color: var(--primary-blue); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    💡 AI Insights
+                </h3>
+
+                {% for insight in insights %}
+                <div class="insight-card" style="background: {{ insight.bg }}; border-left-color: {{ insight.color }};">
+                    <div class="insight-header">
+                        <span style="font-size: 1.5rem;">{{ insight.icon }}</span>
+                        <h5 class="insight-title" style="color: {{ insight.color }};">{{ insight.title }}</h5>
+                    </div>
+                    <p class="insight-text">{{ insight.text }}</p>
+                </div>
+                {% else %}
+                <div class="insight-card">
+                    <p class="insight-text">No specific insights available at this time.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Render Charts
+        try {
+            const forecastChart = {{ forecast_json | safe
+        }};
+        const heatmapChart = {{ heatmap_json | safe }};
+        const config = { responsive: true, displayModeBar: false };
+
+        if (forecastChart && forecastChart.data) {
+            Plotly.newPlot('forecast-chart', forecastChart.data, forecastChart.layout, config);
+        }
+
+        if (heatmapChart && heatmapChart.data) {
+            Plotly.newPlot('heatmap-chart', heatmapChart.data, heatmapChart.layout, config);
+        }
+        } catch (e) {
+            console.error("Chart Error:", e);
+        }
+    </script>
+</body>
+
+</html>

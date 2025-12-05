@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rahhal - Unified Interface</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            background: #f0f2f5;
+        }
+
+        .section {
+            display: none;
+            padding: 20px;
+        }
+
+        .active {
+            display: block;
+        }
+
+        .nav {
+            background: #142C63;
+            padding: 15px;
+            color: white;
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #142C63;
+        }
+
+        button {
+            background: #F97316;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="nav">
+        <div style="flex:1">Rahhal 🌍</div>
+        <a onclick="show('login')">Login</a>
+        <a onclick="show('dashboard')">Dashboard</a>
+        <a onclick="show('forecast')">Forecast</a>
+    </div>
+
+    <!-- Login Section -->
+    <div id="login" class="section active">
+        <div class="card" style="max-width: 400px; margin: 50px auto; text-align: center;">
+            <h1>Welcome Back</h1>
+            <input type="email" placeholder="Email" style="width: 80%; padding: 10px; margin: 10px 0;">
+            <input type="password" placeholder="Password" style="width: 80%; padding: 10px; margin: 10px 0;">
+            <button onclick="show('dashboard')">Sign In</button>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="section">
+        <h1>Dashboard</h1>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+            <div class="card">
+                <h3>Total Visitors</h3>
+                <h2>1,245</h2>
+            </div>
+            <div class="card">
+                <h3>Avg Wait Time</h3>
+                <h2>35 min</h2>
+            </div>
+            <div class="card">
+                <h3>Park Capacity</h3>
+                <h2>78%</h2>
+            </div>
+            <div class="card">
+                <h3>System Health</h3>
+                <h2>98%</h2>
+            </div>
+        </div>
+        <div class="card" style="height: 400px;">
+            <h3>Live Park Activity</h3>
+            <div style="background: #eee; height: 300px; display: flex; align-items: center; justify-content: center;">
+                [Interactive Chart Placeholder]
+            </div>
+        </div>
+    </div>
+
+    <!-- Forecast Section -->
+    <div id="forecast" class="section">
+        <h1>Crowd Forecast</h1>
+        <div class="card">
+            <h3>Predict Crowd Level</h3>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" placeholder="Temperature (C)">
+                <input type="number" placeholder="Humidity (%)">
+                <select>
+                    <option>Weekday</option>
+                    <option>Weekend</option>
+                </select>
+                <button>Predict</button>
+            </div>
+            <div style="margin-top: 20px; padding: 20px; background: #e0f2fe; border-radius: 5px;">
+                <h3>Predicted Visitors: 15,400</h3>
+                <p>Status: High Crowd Expected</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function show(id) {
+            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+    </script>
+</body>
+
+</html>

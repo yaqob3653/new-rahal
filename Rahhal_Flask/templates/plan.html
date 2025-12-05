@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Your Visit | Rahhal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        /* Plan Page Specific Styles */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            height: fit-content;
+        }
+
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #F1F5F9;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            background: #F8FAFC;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            border-color: var(--accent-orange);
+            outline: none;
+            background: white;
+        }
+
+        /* Sliders */
+        .slider-container {
+            margin-bottom: 20px;
+        }
+
+        .slider-label-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .slider-val {
+            color: var(--fuchsia);
+            font-weight: 600;
+        }
+
+        input[type=range] {
+            width: 100%;
+            accent-color: var(--fuchsia);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #2a4a8b 100%);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Results Area */
+        .results-area {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .cluster-banner {
+            background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+            border: 1px solid #FED7AA;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            animation: slideIn 0.5s;
+        }
+
+        .cluster-icon {
+            font-size: 2.5rem;
+        }
+
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .rec-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #E2E8F0;
+            text-align: center;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .rec-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .rec-img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+        }
+
+        .rec-name {
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+
+        .rec-match {
+            display: inline-block;
+            background: #DCFCE7;
+            color: #166534;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Popular Rides Section */
+        .popular-section {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            margin-bottom: 30px;
+        }
+
+        .data-table-container {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px;
+            color: var(--primary-blue);
+            border-bottom: 2px solid #E2E8F0;
+            font-weight: 700;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #F1F5F9;
+            color: #64748b;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo-container">
+            <video autoplay loop muted playsinline class="sidebar-logo">
+                <source src="{{ url_for('static', filename='logo.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="user-profile">
+            <div
+                style="width: 40px; height: 40px; background: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                {{ session['user']['email'][0].upper() }}
+            </div>
+            <div>
+                <div style="font-weight: 700; color: #142C63;">{{ session['user']['email'] }}</div>
+                <div style="font-size: 0.85rem; color: #64748b;">Admin</div>
+            </div>
+        </div>
+
+        <nav style="flex: 1; overflow-y: auto;">
+            <a href="/dashboard" class="nav-item">Dashboard</a>
+            <a href="/plan" class="nav-item active">User Recommendations</a>
+            <a href="/forecast" class="nav-item">Crowd Prediction</a>
+            <a href="/rides" class="nav-item">Facility Analysis</a>
+            <a href="/insights" class="nav-item">EDA</a>
+            <a href="/map" class="nav-item">Route Optimization</a>
+            <a href="/health" class="nav-item">Model Evaluation</a>
+            <a href="/assistant" class="nav-item">Virtual Assistant</a>
+        </nav>
+
+        <a href="/logout"
+            style="display: block; padding: 12px; background: #FEE2E2; color: #DC2626; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: auto;">
+            Logout
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <div class="page-title">
+                <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_u4jjb9bd.json"
+                    background="transparent" speed="1" style="width: 60px; height: 60px;" loop autoplay></lottie-player>
+                Plan Your Visit
+            </div>
+            <div class="page-subtitle">Personalized Recommendations & Itinerary</div>
+        </div>
+
+        <div class="content-grid">
+            <!-- Left: Form -->
+            <div class="form-card">
+                <div class="form-section-title">Visitor Profile</div>
+                <form method="POST">
+                    <div class="form-group">
+                        <label class="form-label">Age</label>
+                        <input type="number" name="age" class="form-input" required placeholder="e.g. 25" min="1"
+                            max="100">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" name="weight" class="form-input" required placeholder="e.g. 70" min="1"
+                            max="200">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Accompanied By</label>
+                        <select name="accompanied" class="form-select">
+                            <option value="Alone">Alone</option>
+                            <option value="Friends">Friends</option>
+                            <option value="Family">Family</option>
+                            <option value="With Children">With Children</option>
+                        </select>
+                    </div>
+
+                    <div class="slider-container">
+                        <div class="slider-label-row">
+                            <span class="form-label" style="margin:0;">Thrill Preference (0-1)</span>
+                            <span class="slider-val" id="thrillVal">0.5</span>
+                        </div>
+                        <input type="range" name="pref_thrill" min="0" max="1" step="0.1" value="0.5"
+                            oninput="document.getElementById('thrillVal').innerText = this.value">
+                    </div>
+
+                    <div class="slider-container">
+                        <div class="slider-label-row">
+                            <span class="form-label" style="margin:0;">Family Preference (0-1)</span>
+                            <span class="slider-val" id="familyVal">0.5</span>
+                        </div>
+                        <input type="range" name="pref_family" min="0" max="1" step="0.1" value="0.5"
+                            oninput="document.getElementById('familyVal').innerText = this.value">
+                    </div>
+
+                    <div class="slider-container">
+                        <div class="slider-label-row">
+                            <span class="form-label" style="margin:0;">Food Preference (0-1)</span>
+                            <span class="slider-val" id="foodVal">0.5</span>
+                        </div>
+                        <input type="range" name="pref_food" min="0" max="1" step="0.1" value="0.5"
+                            oninput="document.getElementById('foodVal').innerText = this.value">
+                    </div>
+
+                    <button type="submit" class="btn-generate">Generate Recommendations 🚀</button>
+                </form>
+            </div>
+
+            <!-- Right: Results -->
+            <div class="results-area">
+                {% if cluster is not none %}
+                <div class="cluster-banner">
+                    <div class="cluster-icon">🎯</div>
+                    <div>
+                        <div style="font-weight: 700; color: #9A3412; font-size: 1.1rem;">Profile Identified: Cluster
+                            {{ cluster }}</div>
+                        <div style="color: #C2410C; font-size: 0.9rem;">Based on your inputs, our AI has matched you
+                            with similar visitor patterns.</div>
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary-blue); margin-bottom: 15px;">Recommended for You</h3>
+                <div class="rec-grid">
+                    {% for rec in recommendations %}
+                    <div class="rec-card">
+                        <img src="{{ rec.img }}" class="rec-img" alt="Icon">
+                        <div class="rec-name">{{ rec.name }}</div>
+                        <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 10px;">{{ rec.type }}</div>
+                        <div class="rec-match">{{ rec.match }}% Match</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Popular Rides Chart -->
+                <div class="popular-section">
+                    <h3 style="color: var(--primary-blue); margin-bottom: 20px;">Current Least Crowded Rides</h3>
+                    <!-- Render Plotly HTML directly -->
+                    {{ bar_chart_json | safe }}
+                </div>
+
+                <!-- Data Verification Table -->
+                <div class="data-table-container">
+                    <h3
+                        style="color: var(--primary-blue); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                        Data Verification (Real-Time)
+                    </h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Ride Name</th>
+                                <th>Wait Time (min)</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in table_data %}
+                            <tr>
+                                <td style="font-weight: 600;">{{ row.entity_description_short }}</td>
+                                <td style="color: var(--accent-orange);">{{ row.wait_time_max }}</td>
+                                <td>{{ row.work_date.strftime('%Y-%m-%d') if row.work_date else 'N/A' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Rahhal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <style>
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            border: 1px solid #E2E8F0;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        }
+
+        .metric-title {
+            font-size: 1rem;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+            background: linear-gradient(135deg, #142C63 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .metric-change {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .change-positive {
+            background: #DCFCE7;
+            color: #166534;
+        }
+
+        .change-negative {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            border: 1px solid #E2E8F0;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo-container">
+            <video autoplay loop muted playsinline class="sidebar-logo">
+                <source src="{{ url_for('static', filename='logo.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="user-profile">
+            <div
+                style="width: 40px; height: 40px; background: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                {{ session['user']['email'][0].upper() }}
+            </div>
+            <div>
+                <div style="font-weight: 700; color: #142C63;">{{ session['user']['email'] }}</div>
+                <div style="font-size: 0.85rem; color: #64748b;">Admin</div>
+            </div>
+        </div>
+
+        <nav style="flex: 1; overflow-y: auto;">
+            <a href="/dashboard" class="nav-item active">Dashboard</a>
+            <a href="/plan" class="nav-item">User Recommendations</a>
+            <a href="/forecast" class="nav-item">Crowd Prediction</a>
+            <a href="/rides" class="nav-item">Facility Analysis</a>
+            <a href="/insights" class="nav-item">EDA</a>
+            <a href="/map" class="nav-item">Route Optimization</a>
+            <a href="/health" class="nav-item">Model Evaluation</a>
+            <a href="/assistant" class="nav-item">Virtual Assistant</a>
+            <a href="/help" class="nav-item">Documentation</a>
+        </nav>
+
+        <a href="/logout"
+            style="display: block; padding: 12px; background: #FEE2E2; color: #DC2626; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: auto;">
+            Logout
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <div class="page-title">
+                    <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_qp1q7mct.json"
+                        background="transparent" speed="1" style="width: 60px; height: 60px;" loop
+                        autoplay></lottie-player>
+                    Dashboard Overview
+                </div>
+                <div style="color: #64748b; margin-top: 5px;">Real-time park analytics and performance metrics</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-weight: 700; color: var(--primary-blue); font-size: 1.1rem;">{{
+                    now.strftime('%A, %B %d') }}</div>
+                <div style="color: #64748b;">{{ now.strftime('%I:%M %p') }}</div>
+            </div>
+        </div>
+
+        <!-- Metrics Grid with Lottie -->
+        <div class="metrics-grid">
+            <!-- Total Visitors -->
+            <div class="metric-card">
+                <div class="metric-title">Total Visitors</div>
+                <div class="metric-value">{{ "{:,}".format(total_visitors) }}</div>
+                <div class="metric-change change-positive">+12% vs last week</div>
+            </div>
+
+            <!-- Avg Wait Time -->
+            <div class="metric-card">
+                <div class="metric-title">Avg Wait Time</div>
+                <div class="metric-value">{{ avg_wait_time }} min</div>
+                <div class="metric-change change-negative">+5% vs yesterday</div>
+            </div>
+
+            <!-- Ride Utilization -->
+            <div class="metric-card">
+                <div class="metric-title">Ride Utilization</div>
+                <div class="metric-value">85%</div>
+                <div class="metric-change change-positive">+3% vs target</div>
+            </div>
+
+            <!-- Customer Satisfaction -->
+            <div class="metric-card">
+                <div class="metric-title">Satisfaction Score</div>
+                <div class="metric-value">4.8/5</div>
+                <div class="metric-change change-positive">Top Rated</div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">Live Ride Status</div>
+                </div>
+                <div id="treemap-chart" style="height: 350px;"></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">Visitor Trend (24h)</div>
+                </div>
+                <div id="trend-chart" style="height: 350px;"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        try {
+            var treemapJSON = {{ treemap_json | safe
+        }};
+        var trendJSON = {{ trend_json | safe }};
+
+        var config = { responsive: true, displayModeBar: false };
+
+        if (treemapJSON && treemapJSON.data) {
+            Plotly.newPlot('treemap-chart', treemapJSON.data, treemapJSON.layout, config);
+        }
+
+        if (trendJSON && trendJSON.data) {
+            Plotly.newPlot('trend-chart', trendJSON.data, trendJSON.layout, config);
+        }
+        } catch (e) {
+            console.error("Chart Error:", e);
+        }
+    </script>
+</body>
+
+</html>

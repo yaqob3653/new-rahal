@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Evaluation | Rahhal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <style>
+        /* Professional Palette */
+        :root {
+            --primary-blue: #142C63;
+            --accent-orange: #F57C00;
+            --light-green: #A6D86B;
+            --grayish-blue: #BCC5D6;
+            --fuchsia: #D92B7D;
+            --yellow: #FFD54F;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            color: var(--primary-blue);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 30px;
+            border-bottom: 2px solid #E2E8F0;
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            padding: 10px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #64748b;
+            background: none;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-blue);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-orange);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent-orange);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Metrics */
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            border: 1px solid #E2E8F0;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-val {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Charts */
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            border: 1px solid #E2E8F0;
+            margin-bottom: 30px;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            color: var(--primary-blue);
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo-container">
+            <video autoplay loop muted playsinline class="sidebar-logo">
+                <source src="{{ url_for('static', filename='logo.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="user-profile">
+            <div
+                style="width: 40px; height: 40px; background: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                {{ session['user']['email'][0].upper() }}
+            </div>
+            <div>
+                <div style="font-weight: 700; color: #142C63;">{{ session['user']['email'] }}</div>
+                <div style="font-size: 0.85rem; color: #64748b;">Admin</div>
+            </div>
+        </div>
+
+        <nav style="flex: 1; overflow-y: auto;">
+            <a href="/dashboard" class="nav-item">Dashboard</a>
+            <a href="/plan" class="nav-item">User Recommendations</a>
+            <a href="/forecast" class="nav-item">Crowd Prediction</a>
+            <a href="/rides" class="nav-item">Facility Analysis</a>
+            <a href="/insights" class="nav-item">EDA</a>
+            <a href="/map" class="nav-item">Route Optimization</a>
+            <a href="/health" class="nav-item active">Model Evaluation</a>
+            <a href="/assistant" class="nav-item">Virtual Assistant</a>
+            <a href="/help" class="nav-item">Documentation</a>
+        </nav>
+
+        <a href="/logout"
+            style="display: block; padding: 12px; background: #FEE2E2; color: #DC2626; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: auto;">
+            Logout
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <div class="page-title">
+                    <lottie-player src="https://assets2.lottiefiles.com/packages/lf20_jcikwtux.json"
+                        background="transparent" speed="1" style="width: 60px; height: 60px;" loop
+                        autoplay></lottie-player>
+                    Model Performance
+                </div>
+                <div style="color: #64748b; margin-top: 5px;">Evaluation Metrics & Accuracy Analysis</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab(event, 'CrowdPred')">Crowd Prediction (Prophet)</button>
+            <button class="tab-btn" onclick="openTab(event, 'Rec')">Recommendation (K-Means)</button>
+        </div>
+
+        <!-- Tab 1: Crowd Prediction -->
+        <div id="CrowdPred" class="tab-content active">
+            <h3 style="color: var(--primary-blue); margin-bottom: 20px;">Forecast Accuracy Metrics</h3>
+            <div class="metric-grid">
+                <div class="metric-card" style="border-bottom: 4px solid var(--primary-blue);">
+                    <div class="metric-val">{{ "%.2f"|format(mae) }}</div>
+                    <div class="metric-label">MAE (Mean Absolute Error)</div>
+                </div>
+                <div class="metric-card" style="border-bottom: 4px solid var(--accent-orange);">
+                    <div class="metric-val">{{ "%.2f"|format(rmse) }}</div>
+                    <div class="metric-label">RMSE (Root Mean Sq Error)</div>
+                </div>
+                <div class="metric-card" style="border-bottom: 4px solid var(--light-green);">
+                    <div class="metric-val">{{ "%.2f"|format(mape) }}%</div>
+                    <div class="metric-label">MAPE (Mean Abs % Error)</div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">Actual vs Predicted (Validation on Real Data)</div>
+                {{ cv_html | safe }}
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">Residuals (Error Distribution)</div>
+                {{ res_html | safe }}
+            </div>
+        </div>
+
+        <!-- Tab 2: Recommendation -->
+        <div id="Rec" class="tab-content">
+            <h3 style="color: var(--primary-blue); margin-bottom: 20px;">Clustering Quality Evaluation</h3>
+            <div class="chart-card">
+                <div class="chart-title">Visitor Segmentation Analysis (Age vs Weight)</div>
+                {{ clus_html | safe }}
+                <p style="margin-top: 15px; color: #64748b; font-size: 0.95rem; line-height: 1.6;">
+                    <strong>Insight:</strong> This chart visualizes the distribution of visitors based on age and
+                    weight,
+                    colored by their group type. This real-time data helps in validating the clustering logic used by
+                    the recommendation engine.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].className = tabcontent[i].className.replace(" active", "");
+            }
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).className += " active";
+            evt.currentTarget.className += " active";
+            window.dispatchEvent(new Event('resize'));
+        }
+    </script>
+</body>
+
+</html>

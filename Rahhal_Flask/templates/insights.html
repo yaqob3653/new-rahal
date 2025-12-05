@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDA | Rahhal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <style>
+        /* Professional Palette */
+        :root {
+            --primary-blue: #142C63;
+            --accent-orange: #F57C00;
+            --light-green: #A6D86B;
+            --grayish-blue: #BCC5D6;
+            --fuchsia: #D92B7D;
+            --yellow: #FFD54F;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            color: var(--primary-blue);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 30px;
+            border-bottom: 2px solid #E2E8F0;
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            padding: 10px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #64748b;
+            background: none;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-blue);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-orange);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent-orange);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .chart-section {
+            margin-bottom: 40px;
+        }
+
+        .chart-title {
+            font-size: 1.4rem;
+            color: var(--primary-blue);
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            border: 1px solid #E2E8F0;
+        }
+
+        /* Data Table */
+        .data-table-container {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            overflow-x: auto;
+            margin-top: 30px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px;
+            color: var(--primary-blue);
+            border-bottom: 2px solid #E2E8F0;
+            font-weight: 700;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #F1F5F9;
+            color: #64748b;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo-container">
+            <video autoplay loop muted playsinline class="sidebar-logo">
+                <source src="{{ url_for('static', filename='logo.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="user-profile">
+            <div
+                style="width: 40px; height: 40px; background: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                {{ session['user']['email'][0].upper() }}
+            </div>
+            <div>
+                <div style="font-weight: 700; color: #142C63;">{{ session['user']['email'] }}</div>
+                <div style="font-size: 0.85rem; color: #64748b;">Admin</div>
+            </div>
+        </div>
+
+        <nav style="flex: 1; overflow-y: auto;">
+            <a href="/dashboard" class="nav-item">Dashboard</a>
+            <a href="/plan" class="nav-item">User Recommendations</a>
+            <a href="/forecast" class="nav-item">Crowd Prediction</a>
+            <a href="/rides" class="nav-item">Facility Analysis</a>
+            <a href="/insights" class="nav-item active">EDA</a>
+            <a href="/map" class="nav-item">Route Optimization</a>
+            <a href="/health" class="nav-item">Model Evaluation</a>
+            <a href="/assistant" class="nav-item">Virtual Assistant</a>
+        </nav>
+
+        <a href="/logout"
+            style="display: block; padding: 12px; background: #FEE2E2; color: #DC2626; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: auto;">
+            Logout
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <div class="page-title">
+                    <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_qp1q7mct.json"
+                        background="transparent" speed="1" style="width: 60px; height: 60px;" loop
+                        autoplay></lottie-player>
+                    Exploratory Data Analysis
+                </div>
+                <div style="color: #64748b; margin-top: 5px;">Deep Dive into Park Data</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab(event, 'Attendance')">Attendance Analysis</button>
+            <button class="tab-btn" onclick="openTab(event, 'WaitTimes')">Wait Times</button>
+        </div>
+
+        <!-- Tab 1: Attendance -->
+        <div id="Attendance" class="tab-content active">
+            <div class="chart-row">
+                <div class="chart-card" style="height: 450px;">
+                    <div class="chart-title">Top Rides by Wait Time</div>
+                    <div style="height: 380px;">
+                        {{ trend_html | safe }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <h3 style="color: var(--primary-blue); margin-bottom: 20px;">📋 Raw Attendance Data</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Ride</th>
+                            <th>Wait Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in waiting_data[:10] %}
+                        <tr>
+                            <td>{{ row.work_date.strftime('%Y-%m-%d') if row.work_date else 'N/A' }}</td>
+                            <td>{{ row.entity_description_short }}</td>
+                            <td>{{ row.wait_time_max }} min</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 2: Wait Times -->
+        <div id="WaitTimes" class="tab-content">
+            <div class="chart-row">
+                <div class="chart-card" style="height: 450px;">
+                    <div class="chart-title">Wait Time Over Time</div>
+                    <div style="height: 380px;">
+                        {{ scatter_html | safe }}
+                    </div>
+                </div>
+                <div class="chart-card" style="height: 450px;">
+                    <div class="chart-title">Heatmap (Hour vs Ride)</div>
+                    <div style="height: 380px;">
+                        {{ heatmap_html | safe }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <h3 style="color: var(--primary-blue); margin-bottom: 20px;">📋 Raw Wait Time Data</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Ride</th>
+                            <th>Wait Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in waiting_data[:10] %}
+                        <tr>
+                            <td>{{ row.work_date.strftime('%Y-%m-%d') if row.work_date else 'N/A' }}</td>
+                            <td>{{ row.entity_description_short }}</td>
+                            <td>{{ row.wait_time_max }} min</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].className = tabcontent[i].className.replace(" active", "");
+            }
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).className += " active";
+            evt.currentTarget.className += " active";
+            window.dispatchEvent(new Event('resize'));
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Guide | Rahhal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <style>
+        /* Help Page Specific Styles */
+        .help-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+            border: 1px solid #E2E8F0;
+        }
+
+        .faq-question {
+            padding: 20px;
+            font-weight: 700;
+            color: #142C63;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #F8FAFC;
+        }
+
+        .faq-question:hover {
+            background: #F1F5F9;
+        }
+
+        .faq-answer {
+            padding: 20px;
+            color: #475569;
+            line-height: 1.6;
+            display: none;
+            border-top: 1px solid #E2E8F0;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question {
+            color: #3b82f6;
+        }
+
+        .contact-card {
+            background: linear-gradient(135deg, #142C63 0%, #1E40AF 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 40px;
+            box-shadow: 0 10px 30px rgba(20, 44, 99, 0.3);
+        }
+
+        .contact-btn {
+            background: white;
+            color: #142C63;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 700;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .contact-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo-container">
+            <video autoplay loop muted playsinline class="sidebar-logo">
+                <source src="{{ url_for('static', filename='logo.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="user-profile">
+            <div
+                style="width: 40px; height: 40px; background: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                {{ session['user']['email'][0].upper() }}
+            </div>
+            <div>
+                <div style="font-weight: 700; color: #142C63;">{{ session['user']['email'] }}</div>
+                <div style="font-size: 0.85rem; color: #64748b;">Admin</div>
+            </div>
+        </div>
+
+        <nav style="flex: 1; overflow-y: auto;">
+            <a href="/dashboard" class="nav-item">Dashboard</a>
+            <a href="/plan" class="nav-item">User Recommendations</a>
+            <a href="/forecast" class="nav-item">Crowd Prediction</a>
+            <a href="/rides" class="nav-item">Facility Analysis</a>
+            <a href="/insights" class="nav-item">EDA</a>
+            <a href="/map" class="nav-item">Route Optimization</a>
+            <a href="/health" class="nav-item">Model Evaluation</a>
+            <a href="/assistant" class="nav-item">Virtual Assistant</a>
+            <a href="/help" class="nav-item active">Documentation</a>
+        </nav>
+
+        <a href="/logout"
+            style="display: block; padding: 12px; background: #FEE2E2; color: #DC2626; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: auto;">
+            Logout
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <div class="page-title">
+                    <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_5tkzkblw.json"
+                        background="transparent" speed="1" style="width: 60px; height: 60px;" loop
+                        autoplay></lottie-player>
+                    Help & Support
+                </div>
+                <div style="color: #64748b; margin-top: 5px;">Frequently Asked Questions & Guide</div>
+            </div>
+        </div>
+
+        <div class="help-container">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    How does the Route Optimizer work?
+                    <span>▼</span>
+                </div>
+                <div class="faq-answer">
+                    The Smart Map uses Dijkstra's algorithm to calculate the shortest path between rides, considering
+                    real-time wait times to minimize your walking and waiting duration.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    What do the map colors mean?
+                    <span>▼</span>
+                </div>
+                <div class="faq-answer">
+                    The Smart Map shows real-time locations of all rides and facilities. Click on any pin to see details
+                    like wait times and status.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    How accurate is the Crowd Forecast?
+                    <span>▼</span>
+                </div>
+                <div class="faq-answer">
+                    Our AI model uses historical data and weather patterns to predict crowd levels with over 85%
+                    accuracy.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Can I book tickets here?
+                    <span>▼</span>
+                </div>
+                <div class="faq-answer">
+                    Currently, this portal is for planning and monitoring. Ticket booking is available on our main
+                    website.
+                </div>
+            </div>
+
+            <div class="contact-card">
+                <h2 style="margin-top: 0;">Still need help?</h2>
+                <p>Our support team is available 24/7 to assist you.</p>
+                <button class="contact-btn">Contact Support</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleFaq(element) {
+            element.parentElement.classList.toggle('active');
+        }
+    </script>
+</body>
+
+</html>
