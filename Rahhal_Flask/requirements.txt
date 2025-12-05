@@ -5,9 +5,9 @@ pandas==2.1.4
 numpy==1.26.2
 plotly==5.18.0
 scikit-learn==1.3.2
-prophet==1.1.5
+prophet
 vaderSentiment==3.3.2
 joblib==1.3.2
 networkx==3.2.1
 requests==2.31.0
-tensorflow==2.15.0
+tensorflow==2.16.1
