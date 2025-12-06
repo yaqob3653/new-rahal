@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Map | Rahhal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <style>
+        /* Map Page Specific Styles */
+        .map-container {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 30px;
+        }
+
+        .control-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            height: fit-content;
+        }
+
+        .map-view {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #142C63;
+            font-size: 0.9rem;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #E2E8F0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .btn-route {
+            background: linear-gradient(135deg, #142C63 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-route:hover {
+            transform: translateY(-2px);
+        }
+
+        .step-list {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .step-item {
+            background: #F0F2F6;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo-container">
+            <video autoplay loop muted playsinline class="sidebar-logo">
+                <source src="{{ url_for('static', filename='logo.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="user-profile">
+            <div
+                style="width: 40px; height: 40px; background: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                {{ session['user']['email'][0].upper() }}
+            </div>
+            <div>
+                <div style="font-weight: 700; color: #142C63;">{{ session['user']['email'] }}</div>
+                <div style="font-size: 0.85rem; color: #64748b;">Admin</div>
+            </div>
+        </div>
+
+        <nav style="flex: 1; overflow-y: auto;">
+            <a href="/dashboard" class="nav-item">Dashboard</a>
+            <a href="/plan" class="nav-item">User Recommendations</a>
+            <a href="/forecast" class="nav-item">Crowd Prediction</a>
+            <a href="/rides" class="nav-item">Facility Analysis</a>
+            <a href="/insights" class="nav-item">EDA</a>
+            <a href="/map" class="nav-item active">Route Optimization</a>
+            <a href="/health" class="nav-item">Model Evaluation</a>
+            <a href="/assistant" class="nav-item">Virtual Assistant</a>
+        </nav>
+
+        <a href="/logout"
+            style="display: block; padding: 12px; background: #FEE2E2; color: #DC2626; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: auto;">
+            Logout
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <div class="page-title">
+                    <lottie-player src="https://assets2.lottiefiles.com/packages/lf20_jcikwtux.json"
+                        background="transparent" speed="1" style="width: 60px; height: 60px;" loop
+                        autoplay></lottie-player>
+                    Smart Map & Route Optimizer
+                </div>
+                <div style="color: #64748b; margin-top: 5px;">Navigate the park efficiently with real-time data</div>
+            </div>
+        </div>
+
+        <div class="map-container">
+            <!-- Left: Controls -->
+            <div class="control-panel">
+                <h3 style="color: #142C63; margin-bottom: 20px;">Plan Your Route</h3>
+                <form method="POST">
+                    <label class="form-label">Start Point</label>
+                    <select name="start_node" class="form-select">
+                        {% for node in nodes %}
+                        <option value="{{ node }}" {% if start_node==node %}selected{% endif %}>{{ node }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label class="form-label">Destination</label>
+                    <select name="end_node" class="form-select">
+                        {% for node in nodes %}
+                        <option value="{{ node }}" {% if end_node==node %}selected{% endif %}>{{ node }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit" class="btn-route">Find Fastest Route</button>
+                </form>
+
+                {% if path %}
+                <div style="margin-top: 30px;">
+                    <div style="font-weight: 700; color: #166534; margin-bottom: 10px;">
+                        Route Found! ({{ total_time }} min)
+                    </div>
+                    <div class="step-list">
+                        {% for step in path %}
+                        <div class="step-item">
+                            <div style="font-weight: 600;">{{ step }}</div>
+                            <div style="font-size: 0.8rem; color: #64748b;">Arrive at point</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right: Map -->
+            <div class="map-view">
+                <div id="map-chart" style="flex: 1; min-height: 500px;"></div>
+                <div class="legend">
+                    <div><span style="color: #A6D86B;">●</span> Low Wait (<15m)< /div>
+                            <div><span style="color: #F57C00;">●</span> Medium Wait (15-45m)</div>
+                            <div><span style="color: #D92B7D;">●</span> High Wait (>45m)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            var mapData = {{ map_json | safe }};
+            Plotly.newPlot('map-chart', mapData.data, mapData.layout, { responsive: true, displayModeBar: false });
+        </script>
+</body>
+
+</html>

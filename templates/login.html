@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Rahhal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+</head>
+
+<body class="login-body">
+
+    <div class="login-card">
+        <!-- Left Side: Branding -->
+        <div class="login-left">
+            <div class="sidebar-logo-container" style="border: none; margin-bottom: 10px;">
+                <video autoplay loop muted playsinline class="sidebar-logo"
+                    style="width: 150px; height: 150px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                    <source src="{{ url_for('static', filename='logo.mp4') }}" type="video/mp4">
+                </video>
+            </div>
+
+            <h1>Rahhal Analytics</h1>
+            <p style="margin-bottom: 20px;">Advanced Theme Park Intelligence</p>
+
+            <div class="lottie-hero">
+                <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_qp1q7mct.json"
+                    background="transparent" speed="1" style="width: 100%; height: 100%;" loop autoplay></lottie-player>
+            </div>
+        </div>
+
+        <!-- Right Side: Login Form -->
+        <div class="login-right">
+            <h2 class="form-title">Welcome Back</h2>
+            <p class="form-subtitle">Sign in to access your dashboard</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" name="email" class="form-input" placeholder="admin@rahhal.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-input" placeholder="Enter your password"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Login as</label>
+                    <select name="role" class="form-input">
+                        <option value="Admin">Admin</option>
+                        <option value="Visitor">Visitor</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary">Sign In</button><div style="text-align: center; margin-top: 15px;"><a href="/signup" style="color: #142C63; text-decoration: none; font-weight: 600;">Don't have an account? Create one</a></div>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>
